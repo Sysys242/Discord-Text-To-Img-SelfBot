@@ -6,6 +6,11 @@ from PIL import Image, ImageDraw, ImageFont
 
 token = ""
 
+def extract_urls(text):
+    urls = re.findall(r'https?://[^\s<>"]+|www\.[^\s<>"]+', text)
+    new_text = re.sub(r'https?://[^\s<>"]+|www\.[^\s<>"]+', '', text)
+    return new_text, urls
+
 def extract_emoji(text):
     emoji_regex = re.compile("["
         u"\U0001F600-\U0001F64F"  # emoticons
@@ -77,6 +82,7 @@ async def read_messages():
                     if content != "" and "᲼᲼" not in content and not has_markdown(content):
                         content, mention = extract_mention(content)
                         content, emojiInC = extract_emoji(content)
+                        content, urlInC = extract_urls(content)
 
                         image = create_image(content)
                         image_bytes = BytesIO()
@@ -151,6 +157,11 @@ async def read_messages():
                         if len(emojiInC) != 0:
                             for emote in emojiInC:
                                 payload['content'] += f" {emote}"
+                            payload['content'] += "\n"
+
+                        if len(urlInC) != 0:
+                            for url in urlInC:
+                                payload['content'] += f"\n{url}"
                             payload['content'] += "\n"
 
                         if len(message_data['d']['attachments']) > 0:
