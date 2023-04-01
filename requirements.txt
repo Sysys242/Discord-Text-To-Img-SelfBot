@@ -1,0 +1,5 @@
+tls_client
+requests
+pillow
+markdown
+websocket-client
